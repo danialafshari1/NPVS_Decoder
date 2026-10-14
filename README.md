@@ -1,94 +1,66 @@
-# NPV Tunnel Configuration Decoder
+# Multi-Format Configuration Decoder for Windows
 
-A lightweight Windows GUI for opening and decoding NPV Tunnel configuration files (`.npvs` and `.npvt`). The interface is built with Python and Tkinter, while the actual configuration decoding is handled by the bundled [Pantegnos](https://github.com/FrontierTM/Pantegnos/) command-line tool.
+A lightweight Python/Tkinter Windows GUI for opening, inspecting, and attempting to decode supported configuration files across multiple extensions.
+
+## Supported file extensions
+
+The Open dialog includes the following formats:
+
+- `.slip` — SlipNet profiles
+- `.ehi` — HTTP Injector configurations
+- `.dark` — DarkTunnel configurations
+- `.hat` — HA Tunnel Plus configurations
+- `.npvt`, `.npvs` — NPV Tunnel configurations
+- `.nm` — NetMod configurations
+- `.happ` — Happ Proxy configurations
+- `.bpf` — profile exports associated with sing-box tools
+- `.tls` — TLS Tunnel profiles
+
+The file picker also includes **All files** so you can select a file even if its extension is missing or unusual.
+
+> **Compatibility note:** Listing an extension in the file picker does not guarantee every variant with that extension can be decoded. Successful decoding depends on the actual file format, the bundled decoding engine's capabilities, and a correct passphrase when required.
 
 ## Features
 
-- Simple Windows desktop interface.
-- Automatically starts decoding after a configuration file is selected with **Open .npvs file**.
-- File diagnostics, including file size, detected signature, UTF-8 check, and readable ASCII fragments.
-- Displays decoded text in the application.
-- Copy decoded output or save it to a file.
-- Light and dark themes.
-- Automatically locates the bundled Pantegnos executable.
-- Can be packaged as a portable Windows executable.
-
-## Requirements
-
-### Running from source
-
-- Windows
-- Python 3.10 or newer
-- Tkinter (usually included with the standard Windows Python installer)
-- The Pantegnos executable and its accompanying license/notice files
-
-### Running the packaged application
-
-Python does not need to be installed on the destination computer. Keep the application executable and the `tools` directory together:
-
-```text
-Portable_EXE/
-├── NPVSDecoder.exe
-└── tools/
-    ├── pantegnos.exe
-    ├── LICENSE
-    └── PANTEGNOS_README.md
-```
-
-Do not distribute `NPVSDecoder.exe` on its own; the Pantegnos executable is required for decoding.
+- Multi-format file picker with per-extension filters
+- File inspection and automatic decoding attempt after selection
+- View, copy, and save decoded output
+- Light/dark theme
+- Portable Windows EXE build support
 
 ## Run from source
 
-Open PowerShell in the project directory and run:
+Python 3.10+ with Tkinter is required.
 
 ```powershell
 py main.py
 ```
 
-Select **Open .npvs file** and choose a supported configuration file. Decoding starts automatically. If Pantegnos requests a passphrase, enter it in the console window it opens.
+## Project layout
 
-## Build a Windows EXE
-
-On the build computer, install Python 3.10+ and PyInstaller:
-
-```powershell
-py -m pip install --upgrade pyinstaller
+```text
+NPVS_Decoder_Source/
+  main.py
+  tools/
+    pantegnos.exe
+    LICENSE
+    PANTEGNOS_README.md
+  build.bat
+  requirements.txt
 ```
 
-From the project source directory, build the GUI executable:
+## Build the Windows EXE
 
-```powershell
-py -m PyInstaller --noconfirm --clean --onefile --windowed --name NPVSDecoder .\main.py
-```
+Run `build.bat` on Windows. It builds `dist\NPVSDecoder.exe` and copies the `tools` folder next to the executable. Distribute the full `Portable_EXE` folder, not the EXE alone, because the bundled decoding engine is required.
 
-Then create the portable folder and copy the required files:
+If a selected file requires a passphrase, a separate console window may appear to request it.
 
-```powershell
-New-Item -ItemType Directory -Force .\Portable_EXE\tools | Out-Null
-Copy-Item .\dist\NPVSDecoder.exe .\Portable_EXE\NPVSDecoder.exe -Force
-Copy-Item .\tools\pantegnos.exe .\Portable_EXE\tools\pantegnos.exe -Force
-Copy-Item .\tools\LICENSE .\Portable_EXE\tools\LICENSE -Force
-Copy-Item .\tools\PANTEGNOS_README.md .\Portable_EXE\tools\PANTEGNOS_README.md -Force
-```
+## Troubleshooting
 
-Transfer the entire `Portable_EXE` folder to the destination computer.
+- If decoding fails, verify the passphrase and check whether that specific file variant is supported by the bundled engine.
+- Keep the `tools` folder next to the EXE.
+- Use **All files** if the file does not have one of the listed extensions.
 
-## How it works
+## Third-party engine and license
 
-The GUI copies the selected configuration into a temporary input directory and runs Pantegnos with input and output directories. Text files produced by Pantegnos are then loaded into the application for viewing, copying, or saving.
-
-This project provides a graphical interface; it does **not** implement its own decryption algorithm.
-
-## Limitations
-
-- Successful decoding depends on whether Pantegnos supports the selected file variant and whether any required passphrase is correct.
-- Some files may fail to decode. If that happens, check the Pantegnos console output for details.
-- The application should be tested with the specific configuration files you intend to use. Support for every `.npvs`/`.npvt` variant is not guaranteed.
-
-## Licensing
-
-Pantegnos is a separate project with its own license and notices. The Pantegnos README identifies its current release as licensed under **AGPL-3.0**. Keep its license and attribution files with the bundled executable, and review the license requirements before redistributing this application or modified builds. This README does not replace the upstream license.
-
-## Acknowledgements
-
-Special thanks to the [Pantegnos project](https://github.com/FrontierTM/Pantegnos/) by **FrontierTM**. This application relies on Pantegnos for the underlying NPV Tunnel configuration decoding functionality. Thank you for making this project available and for the work behind it.
+This application bundles a third-party decoding engine in `tools/`. Its original license and notices are retained in that folder. Review `tools/LICENSE` and `tools/PANTEGNOS_README.md` before redistribution, and comply with the applicable license terms, including source-code obligations where required.
